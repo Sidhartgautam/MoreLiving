@@ -34,3 +34,15 @@ class RoomSerializer(serializers.ModelSerializer):
         model = Room
         fields = ['id','room_number', 'room_status', 'room_type', 'hotel', 'room_price', 'description', 'floor', 'room_amenities', 'room_images']
 
+    def validate_room_number(self, value):
+        if not value.isalnum():
+            raise serializers.ValidationError("Room number must be alphanumeric.")
+        if Room.objects.filter(room_number=value, hotel=self.initial_data.get('hotel')).exists():
+            raise serializers.ValidationError("A room with this number already exists in this hotel.")
+        return value
+
+    def validate(self, data):
+        if data['room_price'] <= 0:
+            raise serializers.ValidationError("Room price must be positive.")
+        return data
+

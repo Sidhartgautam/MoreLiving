@@ -2,6 +2,8 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from roles.models import Role
 from django.contrib.auth import authenticate
+from .models import UserProfile, User
+
 
 User = get_user_model()
 
@@ -36,11 +38,30 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         if User.objects.filter(username=value).exists():
             raise serializers.ValidationError({"username": ("Username already exists")})
         return value
+
+    def validate_password(self, value):
+        if len(value) < 8:
+            raise serializers.ValidationError({"password": ("Password must be at least 8 characters")})
+        return value
+    
+class UserProfileSerializer(serializers.ModelSerializer):
+    username = serializers.SerializerMethodField()
+    email = serializers.SerializerMethodField()
+    class Meta:
+        model = UserProfile
+        fields = ('id', 'username','email','bio','avatar','gender','date_of_birth','city','country','zip_code','state')
+    def get_username(self, obj):
+        return obj.user.username
+
+    def get_email(self, obj):
+        return obj.user.email
     
 class UserListSerializer(serializers.ModelSerializer):
+    profile = UserProfileSerializer()
     class Meta:
         model = User
-        fields = ('id', 'username', 'first_name', 'last_name', 'email')
+        fields = ('id', 'username', 'first_name', 'last_name', 'email','profile')
+
 
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()

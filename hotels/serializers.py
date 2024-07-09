@@ -6,16 +6,8 @@ class HotelTypeSerializer(serializers.ModelSerializer):
         model = HotelType
         fields = ['id', 'type_name']
 
-    def validate(self, data):
-        hotel_types = data.get('hotel_type')
-        if len(hotel_types) == 0:
-            raise serializers.ValidationError("Atleast one type is required")
-        return data
-
 class HotelSerializer(serializers.ModelSerializer):
     hotel_type = serializers.ListField(child=serializers.IntegerField(), write_only=True)
-
-
     class Meta:
         model = Hotel
         fields = ['id','hotel_name', 'hotel_contact', 'hotel_type', 'country', 'address', 'city', 'state', 'lng', 'lat','updated_at','user']

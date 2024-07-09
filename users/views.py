@@ -1,11 +1,13 @@
-from rest_framework import status
+from rest_framework import status,generics,permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
-from .serializers import UserRegisterSerializer, UserLoginSerializer
+from .models import User, UserProfile
+from .serializers import UserRegisterSerializer, UserLoginSerializer,UserProfileSerializer
 from django.contrib.auth import login
 from rest_framework_simplejwt.tokens import RefreshToken
 from core.utils.response import PrepareResponse
+
 
 class UserRegisterView(APIView):
     permission_classes = [AllowAny]
@@ -13,7 +15,8 @@ class UserRegisterView(APIView):
     def post(self, request):
         serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            user=serializer.save()
+            UserProfile.objects.create(user=user)
             response = PrepareResponse(
                 success=True,
                 message="User registered successfully",
@@ -60,3 +63,44 @@ class UserLoginView(APIView):
                 data=serializer.errors
             )
             return response.send(400)
+        
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        try:
+            return self.request.user.profile
+        except UserProfile.DoesNotExist:
+            UserProfile.objects.create(user=self.request.user)
+            return self.request.user.profile
+
+    def get(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_object())
+        response = PrepareResponse(
+            success=True,
+            message="Profile retrieved successfully",
+            data=serializer.data
+        )
+        return response.send()
+
+    def put(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        if serializer.is_valid():
+            serializer.save()
+            response = PrepareResponse(
+                success=True,
+                message="Profile updated successfully",
+                data=serializer.data
+            )
+            return response.send()
+        else:
+            response = PrepareResponse(
+                success=False,
+                message="Profile update failed",
+                data=serializer.errors
+            )
+            return response.send(400)
+

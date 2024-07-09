@@ -18,8 +18,11 @@ class BookingSerializer(serializers.ModelSerializer):
         if data['check_in'] >= data['check_out']:
             raise serializers.ValidationError("Check-out date must be after check-in date.")
         
-        #Check if room belongs to that hotel or not
+        # Check booking duration
+        if (data['check_out'] - data['check_in']).days > 365:
+            raise serializers.ValidationError("Booking duration cannot exceed one year.")
         
+        #Check if room belongs to that hotel or not
         if data['room'].hotel != data['hotel']:
             raise serializers.ValidationError("The selected room does not belong to the chosen hotel.")
 
