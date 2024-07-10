@@ -3,8 +3,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from core.utils.models import TimestampedModel
 from django.utils.translation import gettext_lazy as _
-from permission.models import Permission
-from roles.models import Role
 
 class User(AbstractUser, TimestampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -18,17 +16,6 @@ class User(AbstractUser, TimestampedModel):
         max_length=100,
         help_text="Last name of the user"
     )
-    user_role = models.ForeignKey(
-        Role,
-        on_delete=models.CASCADE,
-        null=True
-    )
-    user_permissions = models.ManyToManyField(
-        Permission,
-        verbose_name="User Permissions",
-        blank=True
-    )
-
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
 
@@ -53,7 +40,6 @@ class UserProfile(TimestampedModel):
     country = models.CharField(max_length=255, blank=True, null=True)
     zip_code = models.CharField(max_length=255, blank=True, null=True)
     state = models.CharField(max_length=255, blank=True, null=True)
-    username = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.get_full_name()} ({self.user.username})"

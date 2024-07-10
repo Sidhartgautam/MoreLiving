@@ -7,10 +7,11 @@ class HotelTypeSerializer(serializers.ModelSerializer):
         fields = ['id', 'type_name']
 
 class HotelSerializer(serializers.ModelSerializer):
-    hotel_type = serializers.ListField(child=serializers.IntegerField(), write_only=True)
+    hotel_type = serializers.ListField(child=serializers.UUIDField(), write_only=True)
+    hotel_email = serializers.EmailField(required=True)
     class Meta:
         model = Hotel
-        fields = ['id','hotel_name', 'hotel_contact', 'hotel_type', 'country', 'address', 'city', 'state', 'lng', 'lat','updated_at','user']
+        fields = ['id','hotel_name','hotel_email','hotel_contact','hotel_type','country','address','city','state','lng','lat','updated_at','user']
         read_only_fields = ['id', 'updated_at','user']
 
     # def validate_hotel_name(self, value):
@@ -19,6 +20,9 @@ class HotelSerializer(serializers.ModelSerializer):
     #     return value
 
     def validate(self, data):
+        user = self.context['request'].user
+        if Hotel.objects.filter(user=user).exists():
+            raise serializers.ValidationError("A user can only add one hotel.")
         if data['lng'] < -180 or data['lng'] > 180:
             raise serializers.ValidationError("Longitude must be between -180 and 180 degrees.")
         if data['lat'] < -90 or data['lat'] > 90:

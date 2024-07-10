@@ -15,8 +15,10 @@ class UserRegisterView(APIView):
     def post(self, request):
         serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid():
-            user=serializer.save()
-            UserProfile.objects.create(user=user)
+            user = serializer.save()
+            # Create a user profile if it doesn't exist
+            if not UserProfile.objects.filter(user=user).exists():
+                UserProfile.objects.create(user=user)
             response = PrepareResponse(
                 success=True,
                 message="User registered successfully",

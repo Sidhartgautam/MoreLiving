@@ -44,11 +44,22 @@ class RoomListView(generics.ListAPIView):
     search_fields = ['room_number', 'floor']
 
     def get_queryset(self):
-        hotel_id = self.kwargs.get('hotel_id')
-        return Room.objects.filter(hotel_id=hotel_id)
+        user = self.request.user
+        hotel = user.hotel_set.first()
+        return Room.objects.filter(hotel=hotel) if hotel else Room.objects.none()
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = PrepareResponse(
+                success=True,
+                message="Room list retrieved successfully",
+                data=serializer.data
+            )
+            return response.send()
+        
         serializer = self.get_serializer(queryset, many=True)
         response = PrepareResponse(
             success=True,
@@ -60,7 +71,7 @@ class RoomListView(generics.ListAPIView):
 class RoomTypeCreate(generics.CreateAPIView):
     queryset = RoomType.objects.all()
     serializer_class = RoomTypeSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -101,7 +112,7 @@ class RoomTypeListView(generics.ListAPIView):
 class RoomStatusCreate(generics.CreateAPIView):
     queryset = RoomStatus.objects.all()
     serializer_class = RoomStatusSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -170,8 +181,23 @@ class RoomImageListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_class = RoomImageFilter
 
+    def get_queryset(self):
+        user = self.request.user
+        hotel = user.hotel_set.first()
+        return RoomImage.objects.filter(room__hotel=hotel) if hotel else RoomImage.objects.none()
+
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = PrepareResponse(
+                success=True,
+                message="Room image list retrieved successfully",
+                data=serializer.data
+            )
+            return response.send()
+        
         serializer = self.get_serializer(queryset, many=True)
         response = PrepareResponse(
             success=True,
@@ -211,8 +237,23 @@ class RoomAmenitiesListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_class = RoomAmenitiesFilter
 
+    def get_queryset(self):
+        user = self.request.user
+        hotel = user.hotel_set.first()
+        return RoomAmenities.objects.filter(room__hotel=hotel) if hotel else RoomAmenities.objects.none()
+
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response = PrepareResponse(
+                success=True,
+                message="Room amenities list retrieved successfully",
+                data=serializer.data
+            )
+            return response.send()
+        
         serializer = self.get_serializer(queryset, many=True)
         response = PrepareResponse(
             success=True,
@@ -220,3 +261,4 @@ class RoomAmenitiesListView(generics.ListAPIView):
             data=serializer.data
         )
         return response.send()
+

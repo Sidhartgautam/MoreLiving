@@ -18,7 +18,7 @@ class HotelCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save(user=request.user)
             response = PrepareResponse(
@@ -59,7 +59,7 @@ class HotelListView(generics.ListAPIView):
 class HotelTypeCreate(generics.CreateAPIView):
     queryset = HotelType.objects.all()
     serializer_class = HotelTypeSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

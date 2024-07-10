@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from roles.models import Role
 from django.contrib.auth import authenticate
 from .models import UserProfile, User
 
@@ -17,14 +16,12 @@ class UserRegisterSerializer(serializers.ModelSerializer):
                   )
 
     def create(self, validated_data):
-        role = Role.objects.get(codename='owner')
         user = User.objects.create(
             username=validated_data['username'],
             email=validated_data['email'],
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
         )
-        user.user_role = role
         user.set_password(validated_data['password'])
         user.save()
         return user

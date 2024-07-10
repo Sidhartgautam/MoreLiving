@@ -43,10 +43,11 @@ class BookingListView(generics.ListAPIView):
     pagination_class = CustomPagination
 
     def get_queryset(self):
-        return Booking.objects.filter(user=self.request.user)
+        hotel = self.request.user.hotel_set.first()
+        return Booking.objects.filter(hotel=hotel) if hotel else Booking.objects.none()
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+        queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -59,6 +60,30 @@ class BookingListView(generics.ListAPIView):
             data=serializer.data
         )
         return response.send()
+
+    
+class BookingStatusCreateView(generics.CreateAPIView):
+    queryset = BookingStatus.objects.all()
+    serializer_class = BookingStatusSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            response = PrepareResponse(
+                success=True,
+                message="Booking status created successfully",
+                data=serializer.data
+            )
+            return response.send(code=status.HTTP_201_CREATED)
+        else:
+            response = PrepareResponse(
+                success=False,
+                message="Booking status creation failed",
+                data=serializer.errors
+            )
+            return response.send(400)
 class BookingStatusListView(generics.ListAPIView):
     queryset = BookingStatus.objects.all()
     serializer_class = BookingStatusSerializer
@@ -78,6 +103,10 @@ class BookingCancelView(generics.UpdateAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        hotel = self.request.user.hotel_set.first()
+        return Booking.objects.filter(hotel=hotel) if hotel else Booking.objects.none()
 
     def update(self, request, *args, **kwargs):
         booking = self.get_object()

@@ -51,11 +51,9 @@ ThirdParty_APPS = [
 ]
 
 Local_APPS=[
-'hotels',
-    'roles',
+    'hotels',
     'country',
     'currency',
-    'permission',
     'users',
     'rooms',
     'booking',
