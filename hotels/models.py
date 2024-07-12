@@ -30,6 +30,22 @@ class Hotel(models.Model):
 
    def __str__(self):
        return f"{self.hotel_name}"
+   
+class HotelFacility(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    hotel = models.ForeignKey(Hotel, related_name='facilities', on_delete=models.CASCADE)
+    facility_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.facility_name} - {self.hotel.hotel_name}"
+    
+class HotelImage(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    hotel = models.ForeignKey(Hotel, related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='media/hotel_images/')
+
+    def __str__(self):
+        return f"Image for {self.hotel.hotel_name}"
 
    
    

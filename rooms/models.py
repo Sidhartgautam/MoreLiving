@@ -22,7 +22,7 @@ class RoomType(models.Model):
 class RoomImage(models.Model):
     hotel = models.ForeignKey("hotels.Hotel",on_delete=models.CASCADE,null=True)
     room = models.ForeignKey("Room", on_delete=models.CASCADE, related_name="images")
-    image = models.ImageField(upload_to="room_images")
+    image = models.ImageField(upload_to="media/room_images/")
 
     def __str__(self):
         return f"{self.room.room_number} - Image"
@@ -43,6 +43,7 @@ class Room(models.Model):
     room_price = models.DecimalField(max_digits=9, decimal_places=2)
     description = models.TextField()
     floor = models.IntegerField()
+    max_guests = models.PositiveIntegerField(null=True, blank=True)
 
     def __str__(self):
         return f"Room {self.room_number} in {self.hotel.hotel_name} priced at {self.room_price}"

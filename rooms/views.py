@@ -53,12 +53,14 @@ class RoomListView(generics.ListAPIView):
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            response = PrepareResponse(
-                success=True,
-                message="Room list retrieved successfully",
-                data=serializer.data
-            )
-            return response.send()
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        response = PrepareResponse(
+             success=True,
+             message="Room list retrieved successfully",
+             data=serializer.data
+         )
+        return response.send()
         
         serializer = self.get_serializer(queryset, many=True)
         response = PrepareResponse(
@@ -101,6 +103,10 @@ class RoomTypeListView(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(queryset, many=True)
         response = PrepareResponse(
             success=True,
@@ -142,6 +148,10 @@ class RoomStatusListView(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(queryset, many=True)
         response = PrepareResponse(
             success=True,
@@ -191,20 +201,15 @@ class RoomImageListView(generics.ListAPIView):
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            response = PrepareResponse(
-                success=True,
-                message="Room image list retrieved successfully",
-                data=serializer.data
-            )
-            return response.send()
-        
+            return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(queryset, many=True)
         response = PrepareResponse(
             success=True,
             message="Room image list retrieved successfully",
             data=serializer.data
         )
-        return response.send()
+        return response.send(200)
+        
 
 class RoomAmenitiesCreate(generics.CreateAPIView):
     queryset = RoomAmenities.objects.all()
@@ -260,5 +265,5 @@ class RoomAmenitiesListView(generics.ListAPIView):
             message="Room amenities list retrieved successfully",
             data=serializer.data
         )
-        return response.send()
+        return response.send(200)
 

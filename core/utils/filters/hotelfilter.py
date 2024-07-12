@@ -1,7 +1,7 @@
 # hotels/filters.py
 
 import django_filters
-from hotels.models import Hotel
+from hotels.models import Hotel, HotelType, HotelFacility, HotelImage
 
 class HotelFilter(django_filters.FilterSet):
     min_lat = django_filters.NumberFilter(field_name='lat', lookup_expr='gte')
@@ -29,5 +29,19 @@ class HotelTypeFilter(django_filters.FilterSet):
     type_name = django_filters.CharFilter(lookup_expr='icontains')
 
     class Meta:
-        model = Hotel
+        model = HotelType
         fields = ['type_name']
+
+class HotelImageFilter(django_filters.FilterSet):
+    image = django_filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = HotelImage
+        fields = ['image']
+
+class HotelFacilityFilter(django_filters.FilterSet):
+    facility_name = django_filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = HotelFacility
+        fields = ['facility_name']

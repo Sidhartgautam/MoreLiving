@@ -20,6 +20,12 @@ class Booking(models.Model):
     check_in = models.DateTimeField()
     check_out = models.DateTimeField()
     status = models.ForeignKey(BookingStatus, on_delete=models.SET_NULL, null=True, blank=True)
+    is_cancelled = models.BooleanField(default=False)
+    cancellation_reason = models.TextField(null=True, blank=True)
+    can_be_cancelled_until = models.DateTimeField(null=True, blank=True)
+    num_adults = models.PositiveIntegerField(null=True, blank=True)
+    num_children = models.PositiveIntegerField(null=True, blank=True)
+    total_guests = models.PositiveIntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -32,6 +38,13 @@ class Booking(models.Model):
         
         if self.room.hotel != self.hotel:
             raise ValidationError("The selected room does not belong to the chosen hotel.")
+        
+        #total number of guests
+        if self.num_adults + self.num_children != self.total_guests:
+            raise ValidationError("The total number of guests must be equal to the number of adults plus the number of children.")
+        
+        if self.total_guests > self.room.max_guests:
+            raise ValidationError("The total number of guests cannot exceed the maximum number of {self.room.max_guests} allowed in the room.")
 
         # Check room availability
         existing_bookings = Booking.objects.filter(room=self.room, status__status="Confirmed").exclude(id=self.id)
@@ -40,6 +53,7 @@ class Booking(models.Model):
                 raise ValidationError("The room is not available for the selected dates.")
 
     def save(self, *args, **kwargs):
+        self.total_guests = self.num_adults + self.num_children
         self.clean()
         super().save(*args, **kwargs)
 

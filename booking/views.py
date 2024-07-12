@@ -52,14 +52,13 @@ class BookingListView(generics.ListAPIView):
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
-
         serializer = self.get_serializer(queryset, many=True)
         response = PrepareResponse(
             success=True,
             message="Booking list retrieved successfully",
             data=serializer.data
         )
-        return response.send()
+        return response.send(200)
 
     
 class BookingStatusCreateView(generics.CreateAPIView):

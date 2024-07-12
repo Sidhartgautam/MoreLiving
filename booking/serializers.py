@@ -9,8 +9,8 @@ class BookingStatusSerializer(serializers.ModelSerializer):
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
-        fields = ['id', 'user', 'hotel', 'room', 'check_in', 'check_out', 'status', 'created_at', 'updated_at']
-        read_only_fields = ['user', 'created_at', 'updated_at']
+        fields = ['id', 'user', 'hotel', 'room', 'check_in', 'check_out', 'status','num_adults', 'num_children','total_guests','created_at','updated_at','is_cancelled', 'cancellation_reason', 'can_be_cancelled_until']
+        read_only_fields = ['user','created_at', 'updated_at','total_guests','is_cancelled', 'cancellation_reason', 'can_be_cancelled_until']
 
         #Check if the room is available or not for the selected dates
 
@@ -25,6 +25,12 @@ class BookingSerializer(serializers.ModelSerializer):
         #Check if room belongs to that hotel or not
         if data['room'].hotel != data['hotel']:
             raise serializers.ValidationError("The selected room does not belong to the chosen hotel.")
+        
+        #total number of guests
+        total_guests =data['num_adults'] + data['num_children']
+
+        if total_guests >data['room'].max_guests:
+            raise serializers.ValidationError("The total number of guests cannot exceed the maximum number of {data['room'].max_guests} allowed in the room.")
 
         # Check room availability
         existing_bookings = Booking.objects.filter(room=data['room'], status__status="Confirmed")
@@ -32,6 +38,7 @@ class BookingSerializer(serializers.ModelSerializer):
             if (data['check_in'] < booking.check_out and data['check_out'] > booking.check_in):
                 raise serializers.ValidationError("The room is not available for the selected dates.")
         
+        data['total_guests'] = total_guests
         return data
 
     def create(self, validated_data):

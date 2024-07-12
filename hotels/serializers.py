@@ -1,17 +1,30 @@
 from  rest_framework import serializers
-from .models import Hotel, HotelType
+from .models import Hotel, HotelType, HotelFacility, HotelImage
 
 class HotelTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = HotelType
         fields = ['id', 'type_name']
 
+class HotelFacilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HotelFacility
+        fields = ['id', 'hotel', 'facility_name']
+
+class HotelImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HotelImage
+        fields = ['id', 'hotel', 'image']
+
 class HotelSerializer(serializers.ModelSerializer):
     hotel_type = serializers.ListField(child=serializers.UUIDField(), write_only=True)
     hotel_email = serializers.EmailField(required=True)
+    hotel_contact = serializers.CharField(required=True)
+    hotel_images = HotelImageSerializer(read_only=True, many=True, source='images')
+    hotel_facilities = HotelFacilitySerializer(read_only=True, many=True, source='facilities')
     class Meta:
         model = Hotel
-        fields = ['id','hotel_name','hotel_email','hotel_contact','hotel_type','country','address','city','state','lng','lat','updated_at','user']
+        fields = ['id','hotel_name','hotel_email','hotel_contact','hotel_type','country','address','city','state','lng','lat','updated_at','user','hotel_images','hotel_facilities']
         read_only_fields = ['id', 'updated_at','user']
 
     # def validate_hotel_name(self, value):
