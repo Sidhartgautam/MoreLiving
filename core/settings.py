@@ -30,6 +30,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 SHARED_APPS = [
+    'jazzmin',
     'django.contrib.contenttypes',
     'django.contrib.auth',
     'django.contrib.sessions',
@@ -41,9 +42,6 @@ SHARED_APPS = [
 ]
 
 ThirdParty_APPS = [
-    # The following Django contrib apps must be in TENANT_APPS
-    # Tenant-specific apps
-    'jazzmin',
     'rest_framework',
     'rest_framework_simplejwt',
     'django_filters',
@@ -58,6 +56,7 @@ Local_APPS=[
     'rooms',
     'booking',
     'reviews',
+    'notifications',
 ]
 
 INSTALLED_APPS = SHARED_APPS + ThirdParty_APPS + Local_APPS
@@ -206,55 +205,74 @@ SIMPLE_JWT = {
 AUTH_USER_MODEL = 'users.User'
 
 JAZZMIN_SETTINGS = {
-    "site_title": "More Living",
+    "site_title": "More Living Admin",
     "site_header": "More Living",
-    "site_brand": "My Brand",
-    "welcome_sign": "Welcome to More Living",
-    "copyright": "My Company",
+    "site_brand": "More Living",
+    "welcome_sign": "Welcome to the More Living Admin Panel",
+    "copyright": "More Living © 2023",
     "search_model": "auth.User",
     "user_avatar": None,
     "topmenu_links": [
         {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
         {"model": "auth.User"},
-        {"app": "polls"},
+        {"app": "hotels"},
     ],
     "usermenu_links": [
         {"name": "Support", "url": "https://github.com/farridav/django-jazzmin/issues", "new_window": True},
-        {"model": "auth.user"}
+        {"model": "auth.user"},
     ],
     "show_sidebar": True,
-    "navigation_expanded": True,
+    "navigation_expanded": False,
     "hide_apps": [],
     "hide_models": [],
-    "order_with_respect_to": ["auth", "polls", "polls.Question"],
+    "order_with_respect_to": ["auth", "hotels", "rooms", "booking", "reviews", "notifications"],
     "custom_links": {
-        "polls": [{
+        "hotels": [{
             "name": "Make Messages",
             "url": "make_messages",
             "icon": "fas fa-comments",
-            "permissions": ["polls.view_poll"]
+            "permissions": ["hotels.view_hotel"]
         }]
     },
     "icons": {
         "auth": "fas fa-users-cog",
         "auth.user": "fas fa-user",
         "auth.Group": "fas fa-users",
+        "hotels": "fas fa-hotel",
+        "hotels.Hotel": "fas fa-hotel",
+        "country": "fas fa-globe",
+        "country.Country": "fas fa-globe",
+        "currency": "fas fa-coins",
+        "currency.Currency": "fas fa-coins",
+        "rooms": "fas fa-door-open",
+        "rooms.Room": "fas fa-door-open",
+        "booking": "fas fa-book",
+        "booking.Booking": "fas fa-book",
+        "reviews": "fas fa-star",
+        "reviews.Review": "fas fa-star",
+        "notifications": "fas fa-bell",
+        "notifications.Notification": "fas fa-bell",
     },
     "related_modal_active": True,
     "custom_css": None,
     "custom_js": None,
     "use_google_fonts_cdn": True,
-    "show_ui_builder": False,
+    "show_ui_builder": True,
 }
 
 JAZZMIN_UI_TWEAKS = {
-    "theme": "cosmo",
-    "dark_mode_theme": "darkly",
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": False,
+    "accent": "accent-primary",
     "navbar": "navbar-dark",
     "no_navbar_border": False,
     "navbar_fixed": True,
+    "layout_boxed": False,
     "footer_fixed": False,
-    "body_small_text": False,
+    "sidebar_fixed": True,
     "sidebar": "sidebar-dark-primary",
     "sidebar_nav_small_text": False,
     "sidebar_disable_expand": False,
@@ -262,9 +280,8 @@ JAZZMIN_UI_TWEAKS = {
     "sidebar_nav_compact_style": False,
     "sidebar_nav_legacy_style": False,
     "sidebar_nav_flat_style": False,
-    "theme_switcher": True,
-    "dark_mode_switch": True,
-    "sidebar_fixed": True,
+    "theme": "solar",
+    "dark_mode_theme": "slate",
     "button_classes": {
         "primary": "btn-primary",
         "secondary": "btn-secondary",
@@ -273,8 +290,14 @@ JAZZMIN_UI_TWEAKS = {
         "danger": "btn-danger",
         "success": "btn-success"
     },
-    "actions_sticky_top": False
+    "theme_switcher": True,
+    "dark_mode_switch": True,
+    "actions_sticky_top": False,
+    "use_google_fonts_cdn": True
 }
+
+
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/

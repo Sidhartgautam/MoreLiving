@@ -5,6 +5,7 @@ from hotels.models import Hotel
 from rooms.models import Room
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from notifications.models import Notification
 
 class BookingStatus(models.Model):
     status = models.CharField(max_length=20)
@@ -56,6 +57,10 @@ class Booking(models.Model):
         self.total_guests = self.num_adults + self.num_children
         self.clean()
         super().save(*args, **kwargs)
+        Notification.objects.create(
+            hotel=self.hotel,
+            message = f"New Booking created by {self.user.username} for {self.room.room_number} on {self.check_in}"
+        )
 
     def cancel(self, reason):
         if self.can_be_cancelled_until and timezone.now() > self.can_be_cancelled_until:

@@ -19,4 +19,5 @@ urlpatterns = [
     path ('reviews/', include('reviews.urls')),
     path ('currencies/', include('currency.urls')),
     path ('countries/', include('country.urls')),
+    path ('notifications/', include('notifications.urls')),
 ]
