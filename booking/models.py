@@ -6,6 +6,7 @@ from rooms.models import Room
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from notifications.models import Notification
+from core.utils.notifications import send_notification_email
 
 class BookingStatus(models.Model):
     status = models.CharField(max_length=20)
@@ -54,13 +55,14 @@ class Booking(models.Model):
                 raise ValidationError("The room is not available for the selected dates.")
 
     def save(self, *args, **kwargs):
-        self.total_guests = self.num_adults + self.num_children
-        self.clean()
         super().save(*args, **kwargs)
+        message = f'New booking by {self.user.username} for room {self.room.id} from {self.check_in} to {self.check_out}'
         Notification.objects.create(
-            hotel=self.hotel,
-            message = f"New Booking created by {self.user.username} for {self.room.room_number} on {self.check_in}"
+            user=self.user,
+            hotel=self.room.hotel,
+            message=message
         )
+        send_notification_email(self.user.email, message)
 
     def cancel(self, reason):
         if self.can_be_cancelled_until and timezone.now() > self.can_be_cancelled_until:
