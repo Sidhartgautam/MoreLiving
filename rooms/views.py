@@ -36,7 +36,6 @@ class RoomView(generics.CreateAPIView):
 
 class RoomListView(generics.ListAPIView):
     serializer_class = RoomSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -96,7 +95,6 @@ class RoomTypeCreate(generics.CreateAPIView):
 class RoomTypeListView(generics.ListAPIView):
     queryset = RoomType.objects.all()
     serializer_class = RoomTypeSerializer
-    permission_classes = [permissions.IsAuthenticated]
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RoomTypeFilter
@@ -141,7 +139,6 @@ class RoomStatusCreate(generics.CreateAPIView):
 class RoomStatusListView(generics.ListAPIView):
     queryset = RoomStatus.objects.all()
     serializer_class = RoomStatusSerializer
-    permission_classes = [permissions.IsAuthenticated]
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RoomStatusFilter
@@ -186,7 +183,6 @@ class RoomImageCreate(generics.CreateAPIView):
 class RoomImageListView(generics.ListAPIView):
     queryset = RoomImage.objects.all()
     serializer_class = RoomImageSerializer
-    permission_classes = [permissions.IsAuthenticated]
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RoomImageFilter
@@ -237,7 +233,6 @@ class RoomAmenitiesCreate(generics.CreateAPIView):
 class RoomAmenitiesListView(generics.ListAPIView):
     queryset = RoomAmenities.objects.all()
     serializer_class = RoomAmenitiesSerializer
-    permission_classes = [permissions.IsAuthenticated]
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RoomAmenitiesFilter

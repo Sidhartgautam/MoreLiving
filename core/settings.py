@@ -66,17 +66,66 @@ Local_APPS=[
 
 INSTALLED_APPS = SHARED_APPS + ThirdParty_APPS + Local_APPS
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://192.168.1.74:3000",
+    "http://192.168.1.101:3000",
+    "https://multivendor-mt.vercel.app",
+    "https://www.moredealsclub.com"
+
+
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+
+CORS_ALLOWED_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+]
+
+CORS_ALLOW_HEADERS = [
+    'authorization',
+    'content-type',
+    'X-Country-Code',
+]
+
+
+# Rest Framework
 REST_FRAMEWORK = {
-     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'core.utils.sso_middleware.SSOAuthentication',
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-     'DEFAULT_PAGINATION_CLASS': 'core.utils.pagination.pagination.CustomPagination',
-    'PAGE_SIZE': 10,
-     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    "DEFAULT_SCHEMA_CLASS":
+    "drf_spectacular.openapi.AutoSchema",
+    "DATETIME_FORMAT":
+    "%Y-%m-%dT%H:%M:%S",
+    "TEST_REQUEST_DEFAULT_FORMAT":
+    "json",
+    "DEFAULT_PAGINATION_CLASS":
+    "rest_framework.pagination.LimitOffsetPagination",
 }
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "MoreTechGlobal User Modules API Document",
+    "DESCRIPTION": "Welcome to MoreTechGlobal Centeral Authentication Service",
+    "VERSION": "1.0.0",
+    "SWAGGER_UI_FAVICON_HREF": None,
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SCHEMA_PATH_PREFIX": r"/api/",
+    "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
+}
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+SSO_SERVICE_URL = 'https://moretrek.com/api/'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -127,22 +176,6 @@ DATABASES = {
     }
 }
 
-# DATABASE_ROUTERS = (
-#     'django_tenants.routers.TenantSyncRouter',
-# )
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django_tenants.postgresql_backend',
-#         'NAME': 'postgres',
-#         'USER': 'postgres',
-#         'PASSWORD': 'postgres',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#     }
-# }
-
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -187,50 +220,15 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 if DEBUG:
     # STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build')
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 else:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build')
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 from datetime import timedelta
-
-REST_USE_JWT = True
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "ROTATE_REFRESH_TOKENS": False,
-    "BLACKLIST_AFTER_ROTATION": False,
-    "UPDATE_LAST_LOGIN": False,
-    "ALGORITHM": "HS256",
-    "SIGNING_KEY": settings.SECRET_KEY,
-    "VERIFYING_KEY": "",
-    "AUDIENCE": None,
-    "ISSUER": None,
-    "JSON_ENCODER": None,
-    "JWK_URL": None,
-    "LEEWAY": 0,
-    "AUTH_HEADER_TYPES": ("Bearer",),
-    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "USER_ID_FIELD": "id",
-    "USER_ID_CLAIM": "user_id",
-    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
-    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
-    "TOKEN_TYPE_CLAIM": "token_type",
-    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
-    "JTI_CLAIM": "jti",
-    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
-    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
-    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
-    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
-    "TOKEN_REFRESH_SERIALIZER": "rest_framework.simplejwt.serializers.TokenRefreshSerializer",
-    "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
-    "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
-    "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
-    "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework.simplejwt.serializers.TokenRefreshSlidingSerializer",
-}
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -332,12 +330,12 @@ JAZZMIN_UI_TWEAKS = {
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'static'),
+# ]
 
 # Media files (Uploaded by users)
 MEDIA_URL = '/media/'

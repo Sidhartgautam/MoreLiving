@@ -1,8 +1,7 @@
 from django.urls import path
-from .views import UserRegisterView, UserLoginView,UserProfileView
+from .views import HomeView, GetUserBalance
 
 urlpatterns = [
-    path('register/', UserRegisterView.as_view(), name='register'),
-    path ('login/', UserLoginView.as_view(), name='login'),
-    path ('profile/', UserProfileView.as_view(), name='profile'),
+     path('home/', HomeView.as_view(), name='home'),
+     path('balance/', GetUserBalance.as_view(), name='get_user_balance'),
 ]

@@ -1,49 +1,59 @@
 import uuid
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-from core.utils.models import TimestampedModel
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import AbstractUser, PermissionsMixin, BaseUserManager
 
-class User(AbstractUser, TimestampedModel):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    first_name = models.CharField(
-        _("First Name"),
+class CustomUserManager(BaseUserManager):
+
+    def create_user(self, email,username, password, **extra_fields):
+        if not email:
+            raise ValueError(_('The Email must be set'))
+        if not username:
+            raise ValueError(_('Username must be set'))
+        if not password:
+            raise ValueError(_('Password must be set'))
+
+        email = self.normalize_email(email)
+        user = self.model(email=email,username=username, **extra_fields)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_superuser(self, email,username, password, **extra_fields):
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_active', True)
+
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError(_('Superuser must have is_superuser=True.'))
+        return self.create_user(email,username, password, **extra_fields)
+
+class User(AbstractUser):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=True)
+    username = models.CharField(max_length=200,unique=True, null=True)
+    phone_number = models.CharField(
+        _("Phone Number"),
         max_length=100,
-        help_text="First name of the user"
+        null=True,
+        unique=True,
+        help_text = "Phone number of the user"
     )
-    last_name = models.CharField(
-        _("Last Name"),
-        max_length=100,
-        help_text="Last name of the user"
-    )
+    is_saloon_user = models.BooleanField(default=False)
+   
+
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
+
+    class Meta:
+        ordering = ['-date_joined']
+        verbose_name_plural="Users"
+
+    def __str__(self):
+        return f'{self.username}'
+    
     def get_full_name(self):
-        return f"{self.first_name} {self.last_name}"
-
-    class Meta:
-        verbose_name = "User"
-        verbose_name_plural = "Users"
-
-    def __str__(self):
-        return f"{self.get_full_name()} ({self.username})"
-
-class UserProfile(TimestampedModel):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.OneToOneField(User, on_delete=models.CASCADE , related_name="profile")
-    bio = models.TextField(blank=True, null=True)
-    email = models.EmailField(max_length=255, blank=True, null=True)
-    phone = models.CharField(max_length=255, blank=True, null=True)
-    address = models.CharField(max_length=255, blank=True, null=True)
-    avatar = models.ImageField(upload_to='user_avatar/', blank=True, null=True)
-    gender = models.CharField(max_length=255, blank=True, null=True)
-    date_of_birth = models.DateField(blank=True, null=True)
-    city = models.CharField(max_length=255, blank=True, null=True)
-    country = models.CharField(max_length=255, blank=True, null=True)
-    zip_code = models.CharField(max_length=255, blank=True, null=True)
-    state = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return f"{self.user.get_full_name()} ({self.user.username})"
-
-    class Meta:
-        verbose_name = "User Profile"
-        verbose_name_plural = "User Profiles"
+        return f'{self.first_name} {self.last_name}'
+    

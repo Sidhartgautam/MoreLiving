@@ -37,7 +37,6 @@ class HotelCreateView(generics.CreateAPIView):
 
 class HotelListView(generics.ListAPIView):
     serializer_class = HotelSerializer
-    permission_classes = [permissions.IsAuthenticated]
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = HotelFilter
@@ -126,7 +125,6 @@ class HotelFacilityCreateView(generics.CreateAPIView):
 
 class HotelFacilityListView(generics.ListAPIView):
     serializer_class = HotelFacilitySerializer
-    permission_classes = [permissions.IsAuthenticated]
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = HotelFacilityFilter
@@ -174,7 +172,6 @@ class HotelImageCreateView(generics.CreateAPIView):
 
 class HotelImageListView(generics.ListAPIView):
     serializer_class = HotelImageSerializer
-    permission_classes = [permissions.IsAuthenticated]
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = HotelImageFilter
