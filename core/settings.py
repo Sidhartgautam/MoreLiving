@@ -71,7 +71,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://192.168.1.74:3000",
     "http://192.168.1.101:3000",
-    "https://multivendor-mt.vercel.app",
+    "https://moreliving.vercel.app",
     "https://www.moredealsclub.com"
 
 
