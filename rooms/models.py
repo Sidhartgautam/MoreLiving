@@ -40,6 +40,8 @@ class Room(models.Model):
     room_status = models.ForeignKey(RoomStatus, on_delete=models.CASCADE)
     room_type = models.ForeignKey(RoomType, on_delete=models.CASCADE, related_name="rooms")
     hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, related_name="rooms")
+    bed_type = models.CharField(max_length=50, blank=True, null=True)
+    room_size = models.FloatField(null=True, blank=True, help_text="Size in square meters")
     room_price = models.DecimalField(max_digits=9, decimal_places=2)
     description = models.TextField()
     floor = models.IntegerField()

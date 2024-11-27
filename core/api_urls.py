@@ -20,4 +20,7 @@ urlpatterns = [
     path ('currencies/', include('currency.urls')),
     path ('countries/', include('country.urls')),
     path ('notifications/', include('notifications.urls')),
+    path('hotelpolicy/', include('hotelpolicy.urls')),
+    path('faq/', include('faq.urls')),
+    
 ]

@@ -29,3 +29,23 @@ class IsSuperuserPermission(BasePermission):
             else:
                 return False
         return False
+    
+class IsHotelAndHotelOwnerPermission(BasePermission):
+    def has_permission(self, request, view):
+        token=get_moredeals_token(request) 
+        print(token)
+        if not token:
+            return False
+        sso_service_url = f"{settings.SSO_SERVICE_URL}permissions/hotel/"
+        response = requests.get(sso_service_url, headers={'Authorization': f'{token}'})
+        print(response.json())
+        if response.status_code == 200:
+            if response.json()['data']['is_marketplace']:
+                if request.user.is_authenticated :
+                    print("User messi", request.user)
+                    return True
+        return False
+    
+class HotelOwnerPermission(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.owner == request.user

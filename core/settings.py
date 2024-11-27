@@ -63,6 +63,8 @@ Local_APPS=[
     'booking',
     'reviews',
     'notifications',
+    'hotelpolicy',
+    'faq',
 ]
 
 INSTALLED_APPS = SHARED_APPS + ThirdParty_APPS + Local_APPS

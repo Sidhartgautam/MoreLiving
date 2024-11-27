@@ -39,7 +39,6 @@ class User(AbstractUser):
         unique=True,
         help_text = "Phone number of the user"
     )
-    is_saloon_user = models.BooleanField(default=False)
    
 
     objects = CustomUserManager()

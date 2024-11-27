@@ -4,6 +4,13 @@ import uuid
 from django.conf import settings
 from users.models import User
 
+class PropertyType(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    type_name = models.CharField(max_length=20)
+
+    def __str__(self):
+        return f"{self.type_name}"
+
 # Create your models here.
 class HotelType(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -18,7 +25,9 @@ class Hotel(models.Model):
    hotel_name = models.CharField(max_length=50)
    hotel_contact = models.CharField(max_length=50)
    hotel_email = models.EmailField(null=True)
+   description = models.TextField(null=True,blank=True)
    hotel_type = models.ManyToManyField(HotelType, blank=True,related_name='hotels') 
+   property_type = models.ManyToManyField(PropertyType, blank=True,related_name='hotels')
    country = models.ForeignKey(Country, on_delete=models.CASCADE)
    address = models.CharField(max_length=50)
    city = models.CharField(max_length=50)
