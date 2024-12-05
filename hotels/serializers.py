@@ -1,6 +1,7 @@
 from  rest_framework import serializers
 from .models import Hotel, HotelType, HotelFacility, HotelImage
 from reviews.models import HotelReview
+from rooms.serializers import RoomSerializer
 from django.db.models import Avg
 
 class HotelTypeSerializer(serializers.ModelSerializer):
@@ -11,20 +12,24 @@ class HotelTypeSerializer(serializers.ModelSerializer):
 class HotelFacilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = HotelFacility
-        fields = ['id', 'hotel', 'facility_name']
+        fields = [ 'facility_name']
 
 class HotelImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = HotelImage
-        fields = ['id', 'hotel', 'image']
+        fields = ['image']
 
 class HotelSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField(read_only=True)
     review_count = serializers.SerializerMethodField(read_only=True)
-    short_description = serializers.SerializerMethodField(read_only=True) 
+    short_description = serializers.SerializerMethodField(read_only=True)
+    city_name=serializers.SerializerMethodField(read_only=True)
+    images = HotelImageSerializer(many=True, read_only=True)
+    facilities = HotelFacilitySerializer(many=True, read_only=True)
+    rooms=serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Hotel
-        fields = ['id', 'hotel_name','city', 'rating', 'review_count']
+        fields = ['id', 'hotel_name','city','city_name','address', 'rating','short_description', 'review_count', 'facilities', 'images','rooms']
 
     def get_rating(self, obj):
         avg_rating = HotelReview.objects.filter(hotel=obj).aggregate(avg_rating=Avg('rating'))['avg_rating']
@@ -37,6 +42,14 @@ class HotelSerializer(serializers.ModelSerializer):
         if obj.description:
             return obj.description.split('.', 1)[0].strip()
         return None 
+        
+    def get_city_name(self, obj):
+        return obj.city.city_name
+    
+    def get_rooms(self, obj):
+        rooms = obj.rooms.all()[:5] 
+        return RoomSerializer(rooms, many=True).data
+
 
 class HotelDetailSerializer(serializers.ModelSerializer):
     hotel_type = serializers.ListField(child=serializers.UUIDField(), write_only=True)
@@ -70,4 +83,6 @@ class HotelListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hotel
         fields = ['id', 'hotel_name','city']
+
+
     

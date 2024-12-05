@@ -39,3 +39,5 @@ class PropertyTypeAdmin(admin.ModelAdmin):
     ordering = ('type_name',)
 
 
+
+

@@ -1,5 +1,6 @@
 from django.db import models
 from currency.models import Currency
+import uuid
 
 # Create your models here.
 class Country(models.Model):
@@ -9,3 +10,12 @@ class Country(models.Model):
 
    def __str__(self):
        return f"{self.country_name}"
+   
+class City(models.Model):
+    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    city_name = models.CharField(max_length=50)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name="cities")
+    image = models.ImageField(upload_to="city_images/", null=True, blank=True, help_text="Image for the city")
+
+    def __str__(self):
+        return f"{self.city_name}, {self.country.country_name}"

@@ -1,6 +1,10 @@
 # hotels/filters.py
 
 import django_filters
+from django_filters import rest_framework as filters
+from hotels.models import Hotel
+from rooms.models import Room
+from django.db.models import Q
 from hotels.models import Hotel, HotelType, HotelFacility, HotelImage
 
 class HotelFilter(django_filters.FilterSet):
@@ -45,3 +49,46 @@ class HotelFacilityFilter(django_filters.FilterSet):
     class Meta:
         model = HotelFacility
         fields = ['facility_name']
+
+class HotelSearchFilter(filters.FilterSet):
+    city = filters.CharFilter(field_name="city__city_name", lookup_expr="icontains")
+    country = filters.CharFilter(field_name="country__name", lookup_expr="icontains")
+    check_in = filters.DateFilter(method="filter_availability")
+    check_out = filters.DateFilter(method="filter_availability")
+    guests = filters.NumberFilter(method="filter_room_capacity")
+    min_price = filters.NumberFilter(field_name="rooms__room_price", lookup_expr="gte", method="filter_price_range")
+    max_price = filters.NumberFilter(field_name="rooms__room_price", lookup_expr="lte", method="filter_price_range")
+
+    class Meta:
+        model = Hotel
+        fields = ['city', 'country', 'check_in', 'check_out', 'guests', 'min_price', 'max_price']
+
+    def filter_availability(self, queryset, name, value):
+        check_in = self.data.get('check_in')
+        check_out = self.data.get('check_out')
+        if check_in and check_out:
+            # Filter hotels that have rooms available for the given dates
+            queryset = queryset.filter(
+                Q(rooms__bookings__check_out__lte=check_in) |
+                Q(rooms__bookings__check_in__gte=check_out) |
+                Q(rooms__bookings__isnull=True)
+            ).distinct()
+        return queryset
+
+    def filter_room_capacity(self, queryset, name, value):
+        guests = self.data.get('guests')
+        if guests:
+            # Filter hotels with rooms that can accommodate the guest count
+            queryset = queryset.filter(rooms__max_guests__gte=guests).distinct()
+        return queryset
+
+    def filter_price_range(self, queryset, name, value):
+        min_price = self.data.get('min_price')
+        max_price = self.data.get('max_price')
+        if min_price or max_price:
+            # Filter hotels with rooms within the price range
+            queryset = queryset.filter(
+                Q(rooms__room_price__gte=min_price) if min_price else Q(),
+                Q(rooms__room_price__lte=max_price) if max_price else Q(),
+            ).distinct()
+        return queryset

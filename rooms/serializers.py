@@ -57,10 +57,9 @@ class RoomSerializer(serializers.ModelSerializer):
     room_status = serializers.PrimaryKeyRelatedField(queryset=RoomStatus.objects.all())
     room_amenities = RoomAmenitiesSerializer(read_only=True, many=True, source='amenities')
     room_images = RoomImageSerializer(read_only=True, many=True, source='images')
-
     class Meta:
         model = Room
-        fields = ['id', 'room_number', 'room_status', 'room_type', 'hotel', 'room_price', 'description', 'floor', 'room_amenities', 'room_images']
+        fields = ['id', 'room_number', 'room_status', 'room_type', 'hotel', 'room_price', 'description', 'floor', 'room_amenities', 'room_images','bed_type', 'price_basis', 'inclusions', 'room_size', 'max_guests']
 
     def validate_room_number(self, value):
         hotel = self.context['request'].user.hotel_set.first()

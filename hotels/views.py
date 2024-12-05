@@ -8,7 +8,7 @@ from rest_framework import permissions
 from rest_framework import status
 from core.utils.response import PrepareResponse
 from core.utils.pagination.pagination import CustomPagination
-from core.utils.filters.hotelfilter import HotelFilter, HotelTypeFilter, HotelFacilityFilter, HotelImageFilter
+from core.utils.filters.hotelfilter import HotelFilter, HotelTypeFilter, HotelFacilityFilter, HotelImageFilter,HotelSearchFilter
 
 # Create your views here.
 
@@ -35,29 +35,26 @@ class HotelCreateView(generics.CreateAPIView):
             )
             return response.send(400)
 
-class HotelListView(generics.ListAPIView):
+class HotelListView(generics.GenericAPIView):
+    queryset = Hotel.objects.all()
     serializer_class = HotelSerializer
     pagination_class = CustomPagination
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_backends = [DjangoFilterBackend]
     filterset_class = HotelFilter
-    search_fields = ['hotel_name', 'city', 'state']
 
-    def get_queryset(self):
-        return Hotel.objects.filter(user=self.request.user)
-
-    def list(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
-        # serializer = self.get_serializer(queryset, many=True)
+        serializer = self.get_serializer(queryset, many=True)
         response = PrepareResponse(
             success=True,
             message="Hotel list retrieved successfully",
             data=serializer.data
         )
-        return response.send()
+        return response.send(200)
 
 class HotelTypeCreate(generics.CreateAPIView):
     queryset = HotelType.objects.all()
@@ -193,3 +190,11 @@ class HotelImageListView(generics.ListAPIView):
             data=serializer.data
         )
         return response.send()
+    
+
+class HotelSearchView(generics.ListAPIView):
+    queryset = Hotel.objects.all()
+    serializer_class = HotelSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = HotelSearchFilter
+    

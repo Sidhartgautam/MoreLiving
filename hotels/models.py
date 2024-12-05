@@ -1,5 +1,5 @@
 from django.db import models
-from country.models import Country
+from country.models import Country,City
 import uuid
 from django.conf import settings
 from users.models import User
@@ -30,7 +30,7 @@ class Hotel(models.Model):
    property_type = models.ManyToManyField(PropertyType, blank=True,related_name='hotels')
    country = models.ForeignKey(Country, on_delete=models.CASCADE)
    address = models.CharField(max_length=50)
-   city = models.CharField(max_length=50)
+   city=models.ForeignKey(City, on_delete=models.CASCADE, related_name="hotels",null=True,blank=True)
    state = models.CharField(max_length=50)
    lng = models.DecimalField(max_digits=9, decimal_places=6)
    lat = models.DecimalField(max_digits=9, decimal_places=6)
@@ -55,6 +55,7 @@ class HotelImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.hotel.hotel_name}"
+    
 
    
    
