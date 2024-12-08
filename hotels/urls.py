@@ -11,4 +11,5 @@ urlpatterns = [
     path('hotels/facilities/list/',views.HotelFacilityListView.as_view(), name='hotel-facility-list'),
     path('hotels/images/',views.HotelImageCreateView.as_view(), name='hotel-image-create'),
     path('hotels/images/list/',views.HotelImageListView.as_view(), name='hotel-image-list'),
+    path('hotels/<uuid:hotel_id>/details/', views.HotelDetailView.as_view(), name='hotel-detail'),
 ]

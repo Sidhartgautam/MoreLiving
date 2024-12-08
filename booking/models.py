@@ -13,6 +13,11 @@ BookingStatusChoices = [
     ('confirmed', 'Confirmed'),
     ('cancelled', 'Cancelled'),
 ]
+PAYMENT_METHOD_CHOICES = [
+        ('stripe', 'Stripe'),
+        ('cod', 'Cash on Delivery'),
+        ('moredeals', 'MoreDealsClub'),
+    ]
 
 
 class Booking(models.Model):
@@ -23,6 +28,7 @@ class Booking(models.Model):
     check_in = models.DateTimeField()
     check_out = models.DateTimeField()
     status = models.CharField(max_length=20, choices=BookingStatusChoices, default='pending')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='cod',null=True, blank=True)
     is_cancelled = models.BooleanField(default=False)
     cancellation_reason = models.TextField(null=True, blank=True)
     can_be_cancelled_until = models.DateTimeField(null=True, blank=True)
@@ -41,8 +47,6 @@ class Booking(models.Model):
         
         if self.room.hotel != self.hotel:
             raise ValidationError("The selected room does not belong to the chosen hotel.")
-        
-        # Total number of guests validation
         num_adults = self.num_adults or 0
         num_children = self.num_children or 0
         total_guests = self.total_guests or 0
@@ -51,8 +55,6 @@ class Booking(models.Model):
         
         if total_guests > self.room.max_guests:
             raise ValidationError(f"The total number of guests cannot exceed the maximum number of {self.room.max_guests} allowed in the room.")
-
-        # Check room availability for overlapping bookings
         overlapping_bookings = Booking.objects.filter(
             room=self.room,
             status="confirmed",  # Only consider confirmed bookings

@@ -25,6 +25,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-f=#yjoxo&07wg&_ly&v)lkvumfk6d_fti+cgtlm2o3&fn7d!m9'
 
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -41,6 +43,7 @@ SHARED_APPS = [
     'django.contrib.staticfiles',
     'cloudinary_storage',
     'cloudinary',
+    'corsheaders',
 
     
  
@@ -78,8 +81,8 @@ CORS_ALLOWED_ORIGINS = [
 
 
 ]
-
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 CORS_ALLOWED_METHODS = [
@@ -131,6 +134,7 @@ SIMPLE_JWT = {
 SSO_SERVICE_URL = 'https://moretrek.com/api/'
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

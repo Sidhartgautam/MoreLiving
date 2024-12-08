@@ -3,7 +3,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from .models import Hotel, HotelType, HotelFacility, HotelImage
 from rest_framework import generics
-from .serializers import HotelSerializer, HotelTypeSerializer, HotelFacilitySerializer, HotelImageSerializer
+from .serializers import HotelSerializer, HotelTypeSerializer, HotelFacilitySerializer, HotelImageSerializer,HotelDetailSerializer
 from rest_framework import permissions
 from rest_framework import status
 from core.utils.response import PrepareResponse
@@ -197,9 +197,32 @@ class HotelSearchView(generics.ListAPIView):
     serializer_class = HotelSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = HotelSearchFilter
+    
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context.update({"request": self.request})
         return context
+    
+class HotelDetailView(generics.RetrieveAPIView):
+    queryset = Hotel.objects.all()
+    serializer_class = HotelDetailSerializer
+
+    def get(self, request, *args, **kwargs):
+        hotel_id = self.kwargs.get('hotel_id') 
+        try:
+            hotel = Hotel.objects.get(id=hotel_id)
+        except Hotel.DoesNotExist:
+            return PrepareResponse(
+                success=False,
+                message="Hotel not found",
+                data=None
+            ).send(404)
+
+        serializer = self.get_serializer(hotel)
+        return PrepareResponse(
+            success=True,
+            message="Hotel details retrieved successfully",
+            data=serializer.data
+        ).send(200)
     

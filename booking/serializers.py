@@ -38,6 +38,6 @@ class BookingSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         booking = Booking(**validated_data)
-        booking.clean()  # This will run the clean method from the model
+        booking.clean() 
         booking.save()
         return booking

@@ -81,17 +81,26 @@ class HotelSerializer(serializers.ModelSerializer):
 
 
 class HotelDetailSerializer(HotelSerializer):
-    rooms = RoomSerializer(many=True, read_only=True)
     city_name = serializers.SerializerMethodField(read_only=True)
+    images = HotelImageSerializer(many=True, read_only=True)
+    facilities = HotelFacilitySerializer(many=True, read_only=True)
+    price_range = serializers.SerializerMethodField(read_only=True)  
     class Meta:
         model = Hotel
         fields = [
             'id', 'hotel_name', 'city', 'city_name', 'address','lat', 'lng', 'rating',
-            'short_description', 'review_count', 'facilities', 'images', 'rooms'
+            'description', 'facilities','images','price_range',
         ]
 
     def get_city_name(self, obj):
         return obj.city.city_name
+    def get_price_range(self, obj):
+        room_prices = obj.rooms.all().values_list('room_price', flat=True) 
+        if room_prices.exists():
+            min_price = min(room_prices)
+            max_price = max(room_prices)
+            return {"min": min_price, "max": max_price}
+        return {"min": 0, "max": 0}
 
 
     
