@@ -11,17 +11,6 @@ ROOM_STATUS_CHOICES = [
         ('unavailable', 'Unavailable'),
     ]
 
-class RoomStatus(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    room_status = models.CharField(
-        max_length=20, 
-        choices=ROOM_STATUS_CHOICES, 
-        default='available'
-    )
-
-
-    def __str__(self):
-        return self.room_status
 
 class RoomType(models.Model):
     hotel = models.ForeignKey("hotels.Hotel", on_delete=models.CASCADE,null=True)
@@ -49,7 +38,7 @@ class RoomAmenities(models.Model):
 class Room(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     room_number = models.CharField(max_length=50)
-    room_status = models.ForeignKey(RoomStatus, on_delete=models.CASCADE, related_name="rooms")
+    room_status = models.CharField(max_length=20, choices=ROOM_STATUS_CHOICES, default='available')
     room_type = models.ForeignKey(RoomType, on_delete=models.CASCADE, related_name="rooms")
     hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, related_name="rooms")
     bed_type = models.CharField(max_length=50, blank=True, null=True)

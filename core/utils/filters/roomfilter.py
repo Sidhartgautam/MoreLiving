@@ -1,7 +1,7 @@
 # rooms/filters.py
 
 import django_filters
-from rooms.models import Room, RoomType, RoomStatus, RoomImage, RoomAmenities
+from rooms.models import Room, RoomType, RoomImage, RoomAmenities
 
 class RoomFilter(django_filters.FilterSet):
     min_price = django_filters.NumberFilter(field_name='room_price', lookup_expr='gte')
@@ -21,12 +21,6 @@ class RoomTypeFilter(django_filters.FilterSet):
         model = RoomType
         fields = ['type_name']
 
-class RoomStatusFilter(django_filters.FilterSet):
-    status = django_filters.CharFilter(lookup_expr='icontains')
-
-    class Meta:
-        model = RoomStatus
-        fields = ['status']
 
 class RoomImageFilter(django_filters.FilterSet):
     room = django_filters.CharFilter(field_name='room__room_number', lookup_expr='icontains')

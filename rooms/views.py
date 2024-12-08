@@ -1,14 +1,14 @@
 from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from .models import Room, RoomType, RoomStatus, RoomImage, RoomAmenities
-from .serializers import RoomSerializer, RoomTypeSerializer, RoomStatusSerializer, RoomImageSerializer, RoomAmenitiesSerializer
+from .models import Room, RoomType, RoomImage, RoomAmenities
+from .serializers import RoomSerializer, RoomTypeSerializer, RoomImageSerializer, RoomAmenitiesSerializer
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
 from core.utils.response import PrepareResponse
 from core.utils.pagination.pagination import CustomPagination
-from core.utils.filters.roomfilter import RoomFilter, RoomTypeFilter, RoomStatusFilter, RoomImageFilter, RoomAmenitiesFilter
+from core.utils.filters.roomfilter import RoomFilter, RoomTypeFilter, RoomImageFilter, RoomAmenitiesFilter
 
 # Create your views here.
 class RoomView(generics.CreateAPIView):
@@ -113,49 +113,6 @@ class RoomTypeListView(generics.ListAPIView):
         )
         return response.send()
 
-class RoomStatusCreate(generics.CreateAPIView):
-    queryset = RoomStatus.objects.all()
-    serializer_class = RoomStatusSerializer
-    permission_classes = [permissions.IsAdminUser]
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            response = PrepareResponse(
-                success=True,
-                message="Room status created successfully",
-                data=serializer.data
-            )
-            return response.send(code=status.HTTP_201_CREATED)
-        else:
-            response = PrepareResponse(
-                success=False,
-                message="Room status creation failed",
-                data=serializer.errors
-            )
-            return response.send(400)
-
-class RoomStatusListView(generics.ListAPIView):
-    queryset = RoomStatus.objects.all()
-    serializer_class = RoomStatusSerializer
-    pagination_class = CustomPagination
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = RoomStatusFilter
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(queryset, many=True)
-        response = PrepareResponse(
-            success=True,
-            message="Room status list retrieved successfully",
-            data=serializer.data
-        )
-        return response.send()
 
 class RoomImageCreate(generics.CreateAPIView):
     queryset = RoomImage.objects.all()

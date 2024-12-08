@@ -1,10 +1,5 @@
 from rest_framework import serializers
-from .models import Booking, BookingStatus
-
-class BookingStatusSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BookingStatus
-        fields = ['id', 'status']
+from .models import Booking
 
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:

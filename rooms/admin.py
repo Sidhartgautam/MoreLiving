@@ -1,19 +1,13 @@
 # rooms/admin.py
 
 from django.contrib import admin
-from .models import Room, RoomType, RoomStatus, RoomImage, RoomAmenities
+from .models import Room, RoomType, RoomImage, RoomAmenities
 
 @admin.register(RoomType)
 class RoomTypeAdmin(admin.ModelAdmin):
     list_display = ('id','type_name',)
     search_fields = ('type_name',)
     ordering = ('type_name',)
-
-@admin.register(RoomStatus)
-class RoomStatusAdmin(admin.ModelAdmin):
-    list_display = ('id', 'room_status',)
-    search_fields = ('room_status',)
-    ordering = ('room_status',)
 
 class RoomImageInline(admin.TabularInline):
     model = RoomImage

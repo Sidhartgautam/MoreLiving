@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from .models import Booking, BookingStatus
-from .serializers import BookingSerializer, BookingStatusSerializer
+from .models import Booking
+from .serializers import BookingSerializer
 from core.utils.response import PrepareResponse
 from core.utils.pagination.pagination import CustomPagination
 from django.core.exceptions import ValidationError
@@ -60,43 +60,6 @@ class BookingListView(generics.ListAPIView):
         )
         return response.send(200)
 
-    
-class BookingStatusCreateView(generics.CreateAPIView):
-    queryset = BookingStatus.objects.all()
-    serializer_class = BookingStatusSerializer
-    permission_classes = [permissions.IsAdminUser]
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            response = PrepareResponse(
-                success=True,
-                message="Booking status created successfully",
-                data=serializer.data
-            )
-            return response.send(code=status.HTTP_201_CREATED)
-        else:
-            response = PrepareResponse(
-                success=False,
-                message="Booking status creation failed",
-                data=serializer.errors
-            )
-            return response.send(400)
-class BookingStatusListView(generics.ListAPIView):
-    queryset = BookingStatus.objects.all()
-    serializer_class = BookingStatusSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        response = PrepareResponse(
-            success=True,
-            message="Booking status list retrieved successfully",
-            data=serializer.data
-        )
-        return response.send()
 
 class BookingCancelView(generics.UpdateAPIView):
     queryset = Booking.objects.all()

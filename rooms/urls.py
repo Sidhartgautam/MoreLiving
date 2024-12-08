@@ -3,7 +3,6 @@ from django.urls import path
 from .views import (
     RoomView, RoomListView,
     RoomTypeCreate, RoomTypeListView,
-    RoomStatusCreate, RoomStatusListView,
     RoomImageCreate, RoomImageListView,
     RoomAmenitiesCreate, RoomAmenitiesListView
 )
@@ -16,10 +15,6 @@ urlpatterns = [
     # RoomType URLs
     path('room-types/create/', RoomTypeCreate.as_view(), name='roomtype-create'),
     path('room-types/list/', RoomTypeListView.as_view(), name='roomtype-list'),
-
-    # RoomStatus URLs
-    path('room-statuses/create/', RoomStatusCreate.as_view(), name='roomstatus-create'),
-    path('room-statuses/list/', RoomStatusListView.as_view(), name='roomstatus-list'),
 
     # RoomImage URLs
     path('room-images/create/', RoomImageCreate.as_view(), name='roomimage-create'),

@@ -43,6 +43,7 @@ class Hotel(models.Model):
 class HotelFacility(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     hotel = models.ForeignKey(Hotel, related_name='facilities', on_delete=models.CASCADE)
+    icon = models.CharField(max_length=100,null=True,blank=True)
     facility_name = models.CharField(max_length=100)
 
     def __str__(self):

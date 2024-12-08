@@ -1,18 +1,12 @@
 # rooms/serializers.py
 from rest_framework import serializers
-from .models import Room, RoomType, RoomStatus, RoomImage, RoomAmenities
+from .models import Room, RoomType, RoomImage, RoomAmenities
 from hotels.models import Hotel
 
 class RoomTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = RoomType
         fields = ['id', 'type_name']
-
-
-class RoomStatusSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RoomStatus
-        fields = ['id', 'room_status']
 
 class RoomImageSerializer(serializers.ModelSerializer):
     room = serializers.PrimaryKeyRelatedField(queryset=Room.objects.all())
@@ -54,7 +48,6 @@ class RoomAmenitiesSerializer(serializers.ModelSerializer):
 
 class RoomSerializer(serializers.ModelSerializer):
     room_type = serializers.PrimaryKeyRelatedField(queryset=RoomType.objects.all())
-    room_status = serializers.PrimaryKeyRelatedField(queryset=RoomStatus.objects.all())
     room_amenities = RoomAmenitiesSerializer(read_only=True, many=True, source='amenities')
     room_images = RoomImageSerializer(read_only=True, many=True, source='images')
     class Meta:
