@@ -85,8 +85,8 @@ class HotelSearchFilter(filters.FilterSet):
                 ).values_list('room_id', flat=True)
                 queryset = queryset.filter(rooms__id__in=unavailable_room_ids).distinct()
 
-                print("Unavailable Room IDs:", list(unavailable_room_ids))
-                print("Filtered Hotels:", queryset)  # Debugging
+                # print("Unavailable Room IDs:", list(unavailable_room_ids))
+                # print("Filtered Hotels:", queryset)  # Debugging
             except ValueError as e:
                 print("Error parsing dates:", e)  # Handle invalid dates gracefully
         return queryset
@@ -104,32 +104,38 @@ class HotelSearchFilter(filters.FilterSet):
     def filter_number_of_rooms(self, queryset, name, value):
         check_in = self.data.get('check_in')
         check_out = self.data.get('check_out')
-        rooms = int(value)
+        rooms_requested = int(value)
 
-        if not rooms:
+        if not rooms_requested:
             return queryset
 
         if check_in and check_out:
             try:
+                # Parse check-in and check-out dates
                 check_in_date = parse_datetime(check_in)
                 check_out_date = parse_datetime(check_out)
 
-                # Fetch unavailable room IDs
+                # Get IDs of rooms that are unavailable during the specified period
                 unavailable_room_ids = Booking.objects.filter(
                     status="confirmed",
                     check_in__lt=check_out_date,
                     check_out__gt=check_in_date
                 ).values_list('room_id', flat=True)
 
-                # Annotate hotels with available room counts
+                # Annotate hotels with available room count
                 queryset = queryset.annotate(
                     available_rooms_count=Count(
                         'rooms',
-                        filter=~Q(rooms__id__in=unavailable_room_ids)
+                        filter=Q(rooms__room_status='available') & ~Q(rooms__id__in=unavailable_room_ids)
                     )
-                ).filter(available_rooms_count__gte=rooms)
+                ).filter(available_rooms_count__gte=rooms_requested)
+
+                print("Filtered Hotels:", queryset)
+                print("Unavailable Room IDs:", list(unavailable_room_ids))
+
             except ValueError as e:
                 print("Error parsing dates:", e)
+
         return queryset
 
     def filter_price_range(self, queryset, name, value):
