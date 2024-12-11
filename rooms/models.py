@@ -3,6 +3,8 @@
 from django.db import models
 from hotels.models import Hotel
 import uuid
+from django.utils import timezone
+
 
 ROOM_STATUS_CHOICES = [
         ('available', 'Available'),
@@ -52,3 +54,15 @@ class Room(models.Model):
 
     def __str__(self):
         return f"Room {self.room_number} in {self.hotel.hotel_name} priced at {self.room_price}"
+    def get_discounted_price(self):
+        """
+        Calculate the final room price based on any active offer for the hotel.
+        """
+        now = timezone.now()
+        active_offer = self.hotel.offers.filter(
+            is_active=True, valid_from__lte=now, valid_until__gte=now
+        ).first()
+        if active_offer:
+            discount = (self.room_price * active_offer.discount_percentage) / 100
+            return self.room_price - discount
+        return self.room_price

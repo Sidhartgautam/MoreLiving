@@ -1,11 +1,11 @@
 # hotels/filters.py
-
+from django.db import models
 import django_filters
 from django_filters import rest_framework as filters
 from hotels.models import Hotel
 from rooms.models import Room
 from booking.models import Booking
-from django.db.models import Q
+from django.db.models import Q,Count
 from django.utils.dateparse import parse_datetime
 from hotels.models import Hotel, HotelType, HotelFacility, HotelImage
 
@@ -59,6 +59,7 @@ class HotelSearchFilter(filters.FilterSet):
     check_out = filters.DateTimeFilter(method="filter_availability") 
     adults = filters.NumberFilter(method="filter_room_capacity")
     children = filters.NumberFilter(method="filter_room_capacity")
+    rooms= filters.NumberFilter(method="filter_number_of_rooms")
     min_price = filters.NumberFilter(field_name="rooms__room_price", lookup_expr="gte", method="filter_price_range")
     max_price = filters.NumberFilter(field_name="rooms__room_price", lookup_expr="lte", method="filter_price_range")
 
@@ -82,8 +83,6 @@ class HotelSearchFilter(filters.FilterSet):
                     check_in__lt=check_out_date,
                     check_out__gt=check_in_date
                 ).values_list('room_id', flat=True)
-
-                # Exclude hotels whose rooms are fully booked
                 queryset = queryset.filter(rooms__id__in=unavailable_room_ids).distinct()
 
                 print("Unavailable Room IDs:", list(unavailable_room_ids))
@@ -100,6 +99,37 @@ class HotelSearchFilter(filters.FilterSet):
         if total_guests:
             # Filter hotels with rooms that can accommodate the total guest count
             queryset = queryset.filter(rooms__max_guests__gte=total_guests).distinct()
+        return queryset
+    
+    def filter_number_of_rooms(self, queryset, name, value):
+        check_in = self.data.get('check_in')
+        check_out = self.data.get('check_out')
+        rooms = int(value)
+
+        if not rooms:
+            return queryset
+
+        if check_in and check_out:
+            try:
+                check_in_date = parse_datetime(check_in)
+                check_out_date = parse_datetime(check_out)
+
+                # Fetch unavailable room IDs
+                unavailable_room_ids = Booking.objects.filter(
+                    status="confirmed",
+                    check_in__lt=check_out_date,
+                    check_out__gt=check_in_date
+                ).values_list('room_id', flat=True)
+
+                # Annotate hotels with available room counts
+                queryset = queryset.annotate(
+                    available_rooms_count=Count(
+                        'rooms',
+                        filter=~Q(rooms__id__in=unavailable_room_ids)
+                    )
+                ).filter(available_rooms_count__gte=rooms)
+            except ValueError as e:
+                print("Error parsing dates:", e)
         return queryset
 
     def filter_price_range(self, queryset, name, value):

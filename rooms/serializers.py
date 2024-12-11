@@ -50,9 +50,13 @@ class RoomSerializer(serializers.ModelSerializer):
     room_type = serializers.PrimaryKeyRelatedField(queryset=RoomType.objects.all())
     room_amenities = RoomAmenitiesSerializer(read_only=True, many=True, source='amenities')
     room_images = RoomImageSerializer(read_only=True, many=True, source='images')
+    discounted_price = serializers.SerializerMethodField()
     class Meta:
         model = Room
-        fields = ['id', 'room_number', 'room_status', 'room_type', 'hotel', 'room_price', 'description', 'floor', 'room_amenities', 'room_images','bed_type', 'price_basis', 'inclusions', 'room_size', 'max_guests']
+        fields = ['id', 'room_number', 'room_status', 'room_type', 'hotel', 'room_price', 'description', 'floor', 'room_amenities', 'room_images','bed_type', 'price_basis', 'inclusions', 'room_size', 'max_guests', 'discounted_price']
+
+    def get_discounted_price(self, obj):
+        return obj.get_discounted_price()
 
     def validate_room_number(self, value):
         hotel = self.context['request'].user.hotel_set.first()
