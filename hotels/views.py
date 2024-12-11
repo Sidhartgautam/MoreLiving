@@ -1,9 +1,17 @@
-from django.shortcuts import render
+from django.db.models import Q, Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from .models import Hotel, HotelType, HotelFacility, HotelImage
+from country.models import City
 from rest_framework import generics
-from .serializers import HotelSerializer, HotelTypeSerializer, HotelFacilitySerializer, HotelImageSerializer,HotelDetailSerializer
+from .serializers import (
+    HotelSerializer, 
+    HotelTypeSerializer, 
+    HotelFacilitySerializer, 
+    HotelImageSerializer,
+    HotelDetailSerializer,
+    TrendingDestinationSerializer
+)
 from rest_framework import permissions
 from rest_framework import status
 from core.utils.response import PrepareResponse
@@ -225,4 +233,19 @@ class HotelDetailView(generics.RetrieveAPIView):
             message="Hotel details retrieved successfully",
             data=serializer.data
         ).send(200)
+    
+class TrendingDestinationsView(generics.GenericAPIView):
+
+    def get(self, request, *args, **kwargs):
+        # Get the top trending destinations based on bookings
+        cities = City.objects.annotate(
+            booking_count=Count('hotels__rooms__bookings')  
+        ).order_by('-booking_count')[:6] 
+
+        serializer = TrendingDestinationSerializer(cities, many=True)
+        return PrepareResponse(
+            success=True, 
+            message="Trending destinations retrieved successfully", 
+            data=serializer.data
+            ).send(200)
     

@@ -6,6 +6,7 @@ from django.db.models import Avg
 from django.db import models
 from booking.models import Booking
 from django.utils.dateparse import parse_datetime
+from country.models import City
 
 class HotelTypeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -102,5 +103,21 @@ class HotelDetailSerializer(HotelSerializer):
             return {"min": min_price, "max": max_price}
         return {"min": 0, "max": 0}
 
+##############################Trending Destinations####################
+class TrendingDestinationSerializer(serializers.ModelSerializer):
+    average_price = serializers.SerializerMethodField()
+    booking_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = City
+        fields = ['id', 'city_name', 'average_price', 'booking_count', 'image']
+
+    def get_average_price(self, obj):
+        avg_price = Hotel.objects.filter(city=obj).aggregate(Avg('rooms__room_price'))['rooms__room_price__avg']
+        return round(avg_price, 2) if avg_price else 0
+
+    def get_booking_count(self, obj):
+        booking_count = Booking.objects.filter(hotel__city=obj).count()
+        return booking_count
 
     
