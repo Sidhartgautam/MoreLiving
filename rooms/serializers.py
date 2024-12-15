@@ -51,9 +51,15 @@ class RoomSerializer(serializers.ModelSerializer):
     room_amenities = RoomAmenitiesSerializer(read_only=True, many=True, source='amenities')
     room_images = RoomImageSerializer(read_only=True, many=True, source='images')
     discounted_price = serializers.SerializerMethodField()
+    short_description = serializers.SerializerMethodField()
     class Meta:
         model = Room
-        fields = ['id', 'room_number', 'room_status', 'room_type', 'hotel', 'room_price', 'description', 'floor', 'room_amenities', 'room_images','bed_type', 'price_basis', 'inclusions', 'room_size', 'max_guests', 'discounted_price']
+        fields = ['id', 'room_number', 'room_status', 'room_type', 'hotel', 'room_price', 'short_description', 'description', 'floor', 'room_amenities', 'room_images','bed_type', 'price_basis', 'inclusions', 'room_size', 'max_guests', 'discounted_price']
+
+    def get_short_description(self, obj):
+        if obj.description:
+            return obj.description.split('.', 1)[0].strip()
+        return None
 
     def get_discounted_price(self, obj):
         return obj.get_discounted_price()

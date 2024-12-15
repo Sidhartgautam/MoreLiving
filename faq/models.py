@@ -1,27 +1,56 @@
 from django.db import models
 from hotels.models import Hotel
-import uuid
-from core.utils.models import TimestampedModel,UUIDModel
+from core.utils.models import UUIDModel,TimestampedModel
 
-# Create your models here.
-class HotelFAQ(TimestampedModel, UUIDModel):
+
+
+class HotelFAQ(TimestampedModel,UUIDModel):
     hotel = models.ForeignKey(
         Hotel, 
         on_delete=models.CASCADE, 
         related_name="faqs",
         help_text="The hotel to which this FAQ belongs"
     )
-    question = models.CharField(max_length=255, help_text="FAQ question for the hotel")
-    answer = models.TextField(help_text="FAQ answer for the hotel")
-
+    question_text = models.TextField()
+    parent = models.ForeignKey(
+        'self', 
+        on_delete=models.CASCADE, 
+        related_name="replies", 
+        null=True, 
+        blank=True,
+        help_text="Parent FAQ if this is a reply"
+    )
+    user = models.ForeignKey(
+        'users.User', 
+        on_delete=models.CASCADE, 
+        related_name="hotel_faqs",
+        help_text="User who created this FAQ"
+    )
 
     def __str__(self):
-        return f"FAQ for {self.hotel.hotel_name}: {self.question[:50]}"
-    
-class WebsiteFAQ(TimestampedModel,UUIDModel):
-    question = models.CharField(max_length=255, help_text="FAQ question for the website")
-    answer = models.TextField(help_text="FAQ answer for the website")
+        if self.parent:
+            return f"Reply to: {self.parent.question_text[:50]}"
+        return f"Question: {self.question_text[:50]}"
 
-    
+
+class MoreLivingFAQ(TimestampedModel, UUIDModel):
+    question_text = models.TextField()
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        related_name="replies",
+        null=True,
+        blank=True,
+        help_text="Parent FAQ if this is a reply"
+    )
+    user = models.ForeignKey(
+        'users.User',
+        on_delete=models.CASCADE,
+        related_name="website_faqs",
+        help_text="User who created this FAQ"
+    )
+
     def __str__(self):
-        return f"Website FAQ: {self.question[:50]}"
+        if self.parent:
+            return f"Reply to: {self.parent.question_text[:50]}"
+        return f"Question: {self.question_text[:50]}"

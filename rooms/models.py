@@ -20,7 +20,7 @@ class RoomType(models.Model):
     type_name = models.CharField(max_length=20)
 
     def __str__(self):
-        return f"{self.type_name}"
+        return f"{self.type_name}-{self.hotel.hotel_name}"
 
 class RoomImage(models.Model):
     hotel = models.ForeignKey("hotels.Hotel",on_delete=models.CASCADE,null=True)
