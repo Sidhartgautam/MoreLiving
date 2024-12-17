@@ -22,8 +22,11 @@ class HotelFAQCreateView(generics.GenericAPIView):
         if parent_id:
             try:
                 parent_faq = HotelFAQ.objects.get(id=parent_id, hotel=hotel)
+
                 if parent_faq.parent is not None:
                     return PrepareResponse(success=False, message="Replies cannot have further replies").send(400)
+                if request.user != hotel.user:
+                    return PrepareResponse(success=False, message="Only hotel owner can add replies").send(403)
             except HotelFAQ.DoesNotExist:
                 return PrepareResponse(success=False, message="Parent FAQ not found").send(404)
         else:

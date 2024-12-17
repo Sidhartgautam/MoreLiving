@@ -2,11 +2,13 @@ from django.shortcuts import render
 from .models import HouseRule
 from .serializers import HouseRuleSerializer
 from core.utils.response import PrepareResponse
-from rest_framework import generics
+from rest_framework import generics 
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 class HouseRuleCreateView(generics.GenericAPIView):
     serializer_class = HouseRuleSerializer
+    permission_classes = [IsAuthenticated]
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
