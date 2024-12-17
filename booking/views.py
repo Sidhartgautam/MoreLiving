@@ -44,10 +44,10 @@ class BookingCreateAPIView(APIView):
                     booking=booking
                 )
 
-                if payment_status == 'Paid':
+                if payment_status in ['Paid', 'Unpaid']:
                     return PrepareResponse(
                         success=True,
-                        message="Booking created successfully.",
+                        message=message,
                         data=serializer.data
                     ).send(status.HTTP_201_CREATED)
                 else:
