@@ -1,10 +1,11 @@
 from django.db.models import Q, Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from .models import Hotel, HotelType, HotelFacility, HotelImage
+from .models import Hotel, HotelType, HotelFacility, HotelImage,PropertyType
 from country.models import City
 from rest_framework import generics
 from .serializers import (
+    PropertyTypeSerializer,
     HotelSerializer, 
     HotelTypeSerializer, 
     HotelFacilitySerializer, 
@@ -19,6 +20,19 @@ from core.utils.pagination.pagination import CustomPagination
 from core.utils.filters.hotelfilter import HotelFilter, HotelTypeFilter, HotelFacilityFilter, HotelImageFilter,HotelSearchFilter
 
 # Create your views here.
+
+class PropertyTypeListView(generics.ListAPIView):
+    queryset = PropertyType.objects.all()
+    serializer_class = PropertyTypeSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return PrepareResponse(
+            success=True,
+            message="Property types retrieved successfully",
+            data=serializer.data
+        ).send(200)
 
 class HotelCreateView(generics.CreateAPIView):
     queryset = Hotel.objects.all()
@@ -237,15 +251,30 @@ class HotelDetailView(generics.RetrieveAPIView):
 class TrendingDestinationsView(generics.GenericAPIView):
 
     def get(self, request, *args, **kwargs):
-        # Get the top trending destinations based on bookings
         cities = City.objects.annotate(
-            booking_count=Count('hotels__rooms__bookings')  
-        ).order_by('-booking_count')[:6] 
+            hotel_count=Count('hotels')  
+        ).order_by('-hotel_count')[:6] 
 
         serializer = TrendingDestinationSerializer(cities, many=True)
         return PrepareResponse(
             success=True, 
             message="Trending destinations retrieved successfully", 
             data=serializer.data
-            ).send(200)
+        ).send(200)
+    
+class HotelsByPropertyTypeView(generics.ListAPIView):
+    serializer_class = HotelSerializer
+
+    def get_queryset(self):
+        property_type_id = self.kwargs.get('property_type_id')
+        return Hotel.objects.filter(property_type__id=property_type_id)
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return PrepareResponse(
+            success=True,
+            message="Hotels by property type retrieved successfully",
+            data=serializer.data
+        ).send(200)
     

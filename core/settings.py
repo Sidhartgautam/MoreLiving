@@ -75,8 +75,8 @@ INSTALLED_APPS = SHARED_APPS + ThirdParty_APPS + Local_APPS
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://192.168.1.74:3000",
-    "http://192.168.1.101:3000",
+    "http://192.168.1.74:8000",
+    "http://192.168.1.106:3000",
     "https://moreliving.vercel.app",
     "https://www.moredealsclub.com"
 

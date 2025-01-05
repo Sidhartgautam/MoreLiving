@@ -6,15 +6,15 @@ from hotels.models import Hotel
 class RoomTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = RoomType
-        fields = ['id', 'type_name']
+        fields = [ 'id','type_name']
 
 class RoomImageSerializer(serializers.ModelSerializer):
-    room = serializers.PrimaryKeyRelatedField(queryset=Room.objects.all())
-    hotel = serializers.PrimaryKeyRelatedField(queryset=Hotel.objects.all())
+    # room = serializers.PrimaryKeyRelatedField(queryset=Room.objects.all())
+    # hotel = serializers.PrimaryKeyRelatedField(queryset=Hotel.objects.all())
 
     class Meta:
         model = RoomImage
-        fields = ['id', 'room', 'image', 'hotel']
+        fields = ['id', 'image']
 
     def validate_room(self, value):
         if value.hotel != self.context['request'].user.hotel_set.first():
@@ -81,5 +81,28 @@ class RoomSerializer(serializers.ModelSerializer):
         if data['room_price'] <= 0:
             raise serializers.ValidationError("Room price must be positive.")
         return data
+    
+class RoomListSerializer(RoomSerializer):
+    room_images = RoomImageSerializer(read_only=True, many=True, source='images')
+    room_type=serializers.SerializerMethodField()
+    class Meta:
+        model = Room
+        fields = ['id','room_type','room_number','room_price','room_images']
+
+    def get_room_type(self, obj):
+        return obj.room_type.type_name
+    
+class RoomDetailsSerializer(serializers.ModelSerializer):
+    room_amenities = RoomAmenitiesSerializer(read_only=True, many=True, source='amenities')
+    room_images = RoomImageSerializer(read_only=True, many=True, source='images')
+    room_type=serializers.SerializerMethodField()
+
+    class Meta:
+        model = Room
+        fields = ['id','room_number','room_type','description','inclusions','room_amenities','room_price','room_images','price_basis','floor','max_guests','bed_type']
+
+    def get_room_type(self, obj):
+        return obj.room_type.type_name
+
 
 

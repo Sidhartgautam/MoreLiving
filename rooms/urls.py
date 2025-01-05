@@ -1,7 +1,7 @@
 # rooms/urls.py
 from django.urls import path
 from .views import (
-    RoomView, RoomListView,
+    RoomView, RoomListView,RoomDetailsView,
     RoomTypeCreate, RoomTypeListView,
     RoomImageCreate, RoomImageListView,
     RoomAmenitiesCreate, RoomAmenitiesListView
@@ -9,8 +9,10 @@ from .views import (
 
 urlpatterns = [
     # Room URLs
-    path('rooms/list/', RoomListView.as_view(), name='room-list'),
+    path('rooms/list/<uuid:hotel_id>/', RoomListView.as_view(), name='room-list'),
+    path('rooms/<uuid:hotel_id>/<uuid:room_id>/details/', RoomDetailsView.as_view(), name='room-details'),
     path('rooms/create/', RoomView.as_view(), name='room-create'),
+
 
     # RoomType URLs
     path('room-types/create/', RoomTypeCreate.as_view(), name='roomtype-create'),

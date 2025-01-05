@@ -2,8 +2,9 @@ from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from .models import Room, RoomType, RoomImage, RoomAmenities
-from .serializers import RoomSerializer, RoomTypeSerializer, RoomImageSerializer, RoomAmenitiesSerializer
+from .serializers import RoomSerializer, RoomTypeSerializer, RoomImageSerializer, RoomAmenitiesSerializer,RoomListSerializer,RoomDetailsSerializer
 from rest_framework import generics
+from rest_framework.views import APIView
 from rest_framework import permissions
 from rest_framework import status
 from core.utils.response import PrepareResponse
@@ -35,7 +36,7 @@ class RoomView(generics.CreateAPIView):
             return response.send(400)
 
 class RoomListView(generics.ListAPIView):
-    serializer_class = RoomSerializer
+    serializer_class = RoomListSerializer
 
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -43,24 +44,16 @@ class RoomListView(generics.ListAPIView):
     search_fields = ['room_number', 'floor']
 
     def get_queryset(self):
-        user = self.request.user
-        hotel = user.hotel_set.first()
-        return Room.objects.filter(hotel=hotel) if hotel else Room.objects.none()
+        hotel_id=self.kwargs.get('hotel_id')
+        queryset = Room.objects.filter(hotel_id=hotel_id)
+        return queryset
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(queryset, many=True)
-        response = PrepareResponse(
-             success=True,
-             message="Room list retrieved successfully",
-             data=serializer.data
-         )
-        return response.send()
-        
         serializer = self.get_serializer(queryset, many=True)
         response = PrepareResponse(
             success=True,
@@ -68,6 +61,26 @@ class RoomListView(generics.ListAPIView):
             data=serializer.data
         )
         return response.send()
+    
+class RoomDetailsView(APIView):
+    def get(self, request, hotel_id, room_id):
+        try:
+            # Ensure the room belongs to the given hotel
+            room = Room.objects.get(id=room_id, hotel_id=hotel_id)
+            serializer = RoomDetailsSerializer(room)
+            return PrepareResponse(
+                success=True,
+                message="Room details retrieved successfully",
+                data=serializer.data
+            ).send(200)
+        except Room.DoesNotExist:
+            return PrepareResponse(
+                success=False,
+                message="Room not found",
+                data={}
+            ).send(400)
+
+
 
 class RoomTypeCreate(generics.CreateAPIView):
     queryset = RoomType.objects.all()

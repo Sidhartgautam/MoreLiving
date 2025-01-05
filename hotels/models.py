@@ -7,6 +7,7 @@ from users.models import User
 class PropertyType(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type_name = models.CharField(max_length=20)
+    image = models.ImageField(upload_to='media/property_type_images/', null=True, blank=True)
 
     def __str__(self):
         return f"{self.type_name}"
