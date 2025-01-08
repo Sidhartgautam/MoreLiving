@@ -24,7 +24,7 @@ class CountryListView(generics.ListAPIView):
 class CityListView(generics.ListAPIView):
     queryset = City.objects.all()
     serializer_class = CitySerializer
-    permission_classes = [permissions.IsAdminUser]  # No authentication required
+    # permission_classes = [permissions.IsAdminUser]  # No authentication required
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()

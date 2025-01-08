@@ -8,9 +8,11 @@ class CountrySerializer(serializers.ModelSerializer):
         fields = ['id', 'country_name', 'country_code', 'currency']
 
 class CitySerializer(serializers.ModelSerializer):
+    country_id = serializers.ReadOnlyField(source='country.id')
+    country_name = serializers.ReadOnlyField(source='country.country_name')
     class Meta:
-        model = Country
-        fields = ['id', 'country_name', 'country_code', 'currency']
+        model = City
+        fields = ['id', 'city_name', 'country_id', 'country_name', 'image']
 
 class PopularCitySerializer(serializers.ModelSerializer):
     hotel_count = serializers.SerializerMethodField()
