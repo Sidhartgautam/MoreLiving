@@ -8,4 +8,4 @@ class OfferSerializer(serializers.ModelSerializer):
         fields = ['id', 'hotel', 'title', 'description', 'discount_percentage', 'valid_from', 'valid_until','is_valid', 'is_active']
 
     def get_is_valid(self, obj):
-        return obj.is_valid
+        return obj.is_valid()
