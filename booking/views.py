@@ -6,6 +6,7 @@ from core.utils.pagination.pagination import CustomPagination
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from rest_framework.views import APIView
+from hotels.models import Hotel
 import stripe
 import requests
 from django.conf import settings
@@ -21,6 +22,12 @@ class BookingCreateAPIView(APIView):
 
     def post(self, request, *args, **kwargs):
         data = request.data
+        hotel_id = data.get('hotel')
+        hotel = Hotel.objects.get(id=hotel_id)
+        property_type = hotel.property_type.first()
+        if property_type and property_type.is_whole_unit:
+            data['room'] = None
+
         serializer = BookingSerializer(data=data, context={'request': request})
 
         if not serializer.is_valid():

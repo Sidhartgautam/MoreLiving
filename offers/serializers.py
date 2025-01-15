@@ -14,8 +14,7 @@ class OfferSerializer(serializers.ModelSerializer):
         return obj.is_valid()
 
     def get_hotel_image(self, obj):
-        # Get the first image related to the hotel, or return None if no image exists
         first_image = obj.hotel.images.first()
         if first_image:
-            return first_image.image.url  # Return the URL of the first image
+            return first_image.image.url  
         return None
